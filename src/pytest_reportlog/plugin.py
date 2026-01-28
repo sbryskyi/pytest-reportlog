@@ -1,3 +1,4 @@
+import copy
 import json
 from typing import Dict, Any, TextIO
 
@@ -86,6 +87,9 @@ class ReportLogPlugin:
         self._write_json_data(data)
 
     def pytest_runtest_logreport(self, report):
+        if phase := report.when:
+            report = copy.copy(report)
+            report.sections = [(sec_head, content) for sec_head, content in report.sections if phase in sec_head]
         data = self._config.hook.pytest_report_to_serializable(
             config=self._config, report=report
         )
